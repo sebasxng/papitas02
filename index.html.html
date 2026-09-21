@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Una sorpresa para ti! 💛</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        body {
+            background-color: #1a1c23;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Contenedor del escenario */
+        .stage {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            background: linear-gradient(to bottom, #2b323c 0%, #4a5568 60%, #2d3748 100%);
+            border: 4px solid #1a202c;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Suelo / Calle Minecraft */
+        .street {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100px;
+            background-color: #334155;
+            border-top: 6px solid #1e293b;
+            background-image: 
+                linear-gradient(90deg, #475569 2px, transparent 2px),
+                linear-gradient(#475569 2px, transparent 2px);
+            background-size: 32px 32px;
+        }
+
+        /* Farolas de la calle */
+        .lamp {
+            position: absolute;
+            bottom: 100px;
+            width: 10px;
+            height: 120px;
+            background-color: #0f172a;
+        }
+        .lamp::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            width: 30px;
+            height: 20px;
+            background-color: #fef08a;
+            box-shadow: 0 0 25px #fef08a;
+            border-radius: 4px;
+        }
+        .lamp-1 { left: 15%; }
+        .lamp-2 { right: 15%; }
+
+        /* Contenedor de BMO y su animación */
+        .bmo-container {
+            position: absolute;
+            bottom: 60px;
+            left: -150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: left 4s linear;
+            z-index: 10;
+        }
+
+        /* BMO SVG / Pixel Art */
+        .bmo-sprite {
+            width: 110px;
+            height: 120px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        /* Globos de diálogo pixeleados */
+        .speech-bubble {
+            position: absolute;
+            top: -90px;
+            background-color: #ffffff;
+            border: 4px solid #000;
+            padding: 10px 14px;
+            font-size: 8px;
+            line-height: 1.6;
+            color: #000;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease;
+            pointer-events: none;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 8px 8px 0;
+            border-style: solid;
+            border-color: #000 transparent;
+            display: block;
+            width: 0;
+        }
+
+        .speech-bubble.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Flores amarillas */
+        .flowers-hand {
+            position: absolute;
+            bottom: 25px;
+            right: -10px;
+            font-size: 24px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .flowers-hand.visible {
+            opacity: 1;
+            transform: scale(1.3);
+        }
+
+        /* Ventana Modal / Carta Sorpresa */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .letter-card {
+            background-color: #fefce8;
+            border: 4px solid #eab308;
+            box-shadow: 0px 8px 0px #ca8a04;
+            width: 90%;
+            max-width: 450px;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            color: #713f12;
+        }
+
+        .letter-card h2 {
+            font-size: 12px;
+            margin-bottom: 15px;
+            color: #ca8a04;
+        }
+
+        .letter-card p {
+            font-size: 9px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .close-btn {
+            background-color: #eab308;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            font-size: 8px;
+            cursor: pointer;
+            box-shadow: 0px 4px 0px #a16207;
+            border-radius: 4px;
+        }
+
+        .close-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0px 2px 0px #a16207;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stage">
+        <div class="lamp lamp-1"></div>
+        <div class="lamp lamp-2"></div>
+
+        <div class="street"></div>
+
+        <div class="bmo-container" id="bmoContainer">
+            <div class="speech-bubble" id="speechBubble">...</div>
+
+            <svg class="bmo-sprite" id="bmoSvg" viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="95" width="80" height="8" rx="3" fill="#0284c7"/>
+                <circle cx="25" cy="105" r="4" fill="#facc15"/>
+                <circle cx="75" cy="105" r="4" fill="#facc15"/>
+
+                <rect x="20" y="20" width="60" height="70" rx="6" fill="#5eead4" stroke="#0f766e" stroke-width="3"/>
+                
+                <rect x="28" y="28" width="44" height="30" rx="3" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+                
+                <g id="bmoFace">
+                    <circle cx="40" cy="40" r="3" fill="#0f766e"/>
+                    <circle cx="60" cy="40" r="3" fill="#0f766e"/>
+                    <path d="M 44 47 Q 50 52 56 47" stroke="#0f766e" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </g>
+
+                <rect x="30" y="66" width="12" height="4" fill="#facc15"/>
+                <rect x="34" y="62" width="4" height="12" fill="#facc15"/>
+                
+                <circle cx="58" cy="65" r="3" fill="#ef4444"/>
+                <circle cx="66" cy="72" r="2.5" fill="#3b82f6"/>
+                <circle cx="58" cy="78" r="2.5" fill="#22c55e"/>
+
+                <path d="M 18 55 Q 8 60 15 70" stroke="#0f766e" stroke-width="3" fill="none"/>
+                <path d="M 82 55 Q 92 60 85 70" stroke="#0f766e" stroke-width="3" fill="none"/>
+                <path d="M 22 45 L 78 80" stroke="#0f766e" stroke-width="2"/>
+                <rect x="68" y="72" width="10" height="12" rx="2" fill="#0d9488"/>
+            </svg>
+
+            <div class="flowers-hand" id="flowers">💐🌻</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="letter-card">
+            <h2>🌻 ¡UN DETALLE PARA TI! 🌻</h2>
+            <p id="letterContent">
+                ¡Hola! BMO recorrió un largo camino en su patineta solo para entregarte estas flores amarillas.<br><br>
+                Espero que este pequeño detalle te saque una sonrisa y recuerdes lo especial e importante que eres. ¡Que tengas un día increíble! ✨
+            </p>
+            <button class="close-btn" id="closeModal">CERRAR 💛</button>
+        </div>
+    </div>
+
+    <script>
+        const bmoContainer = document.getElementById('bmoContainer');
+        const speechBubble = document.getElementById('speechBubble');
+        const flowers = document.getElementById('flowers');
+        const modal = document.getElementById('modal');
+        const closeModal = document.getElementById('closeModal');
+        const bmoFace = document.getElementById('bmoFace');
+
+        // Paso 1: BMO avanza en su patineta hasta el centro
+        setTimeout(() => {
+            bmoContainer.style.left = 'calc(50% - 55px)';
+        }, 300);
+
+        // Paso 2: Se detiene y "siente que lo están grabando/viendo"
+        setTimeout(() => {
+            // Mira hacia un lado (cambio de ojos)
+            bmoFace.innerHTML = `
+                <circle cx="36" cy="40" r="3" fill="#0f766e"/>
+                <circle cx="56" cy="40" r="3" fill="#0f766e"/>
+                <path d="M 44 48 Q 50 50 56 48" stroke="#0f766e" stroke-width="2" fill="none"/>
+            `;
+        }, 4300);
+
+        // Paso 3: Mira al otro lado
+        setTimeout(() => {
+            bmoFace.innerHTML = `
+                <circle cx="44" cy="40" r="3" fill="#0f766e"/>
+                <circle cx="64" cy="40" r="3" fill="#0f766e"/>
+                <path d="M 44 48 Q 50 50 56 48" stroke="#0f766e" stroke-width="2" fill="none"/>
+            `;
+        }, 5100);
+
+        // Paso 4: ¡Encuentra a quien lo está viendo y se alegra!
+        setTimeout(() => {
+            bmoFace.innerHTML = `
+                <circle cx="40" cy="38" r="3.5" fill="#0f766e"/>
+                <circle cx="60" cy="38" r="3.5" fill="#0f766e"/>
+                <path d="M 42 46 Q 50 54 58 46" stroke="#0f766e" stroke-width="2.5" fill="none"/>
+            `;
+            speechBubble.textContent = "Oh hola, ¡eres tú! :D";
+            speechBubble.classList.add('active');
+        }, 6000);
+
+        // Paso 5: Saca las flores de su bolso
+        setTimeout(() => {
+            speechBubble.textContent = "Mira lo que tengo para ti 💛";
+            flowers.classList.add('visible');
+        }, 8500);
+
+        // Abrir la carta al hacer clic en las flores o BMO
+        flowers.addEventListener('click', openLetter);
+        document.getElementById('bmoSvg').addEventListener('click', openLetter);
+
+        function openLetter() {
+            if (flowers.classList.contains('visible')) {
+                modal.classList.add('active');
+            }
+        }
+
+        // Cerrar modal
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
